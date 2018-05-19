@@ -1,0 +1,58 @@
+<p *ngIf="!otcEnabled">Sorry, otc has currently been disabled!</p>
+<md-card *ngIf="otcEnabled">
+  <md-card-title>Support SPO</md-card-title>
+  <md-card class="skycoin-details">
+    You can get SPO Tokens directly from your wallet using our SPO Token Teller service.
+    <br/>
+    {{tellerNotice.desc}}    
+  </md-card>
+ 
+
+  <md-card>   
+    <div style="display:none">
+      The current rate is 0.0002 BTC per
+      SPO. To support SPO, request a BTC deposit address. Once you have a BTC deposit address, any BTC deposits will
+      automatically be added to your selected address.
+      <button md-icon-button (click)="searchDepositAddress(address.address)" [disabled]="scanning">
+        <md-icon>refresh</md-icon>
+      </button>
+    </div>
+  <md-list>
+    <md-list-item *ngFor="let item of supportedTokens">
+      <div class="spo-buy-typelist">
+        <div class="spo-buy-typelist-content">
+          <label>{{item.label}}</label>
+          <p>{{item.description}}</p>
+        </div>
+        <div class="spo-buy-typelist-btnbox">
+          <a md-raised-button color="primary" (click)="addDepositAddress(item.token)">Deposit</a>
+        </div>
+      </div>
+    </md-list-item>
+  </md-list>  
+</md-card>
+
+
+
+  <md-list>
+    <ng-container *ngFor="let order of (purchaseService.all() | async); let i = index">
+      <md-divider *ngIf="i"></md-divider>
+      <h3 md-subheader>SPO address: {{ order.address }}</h3>
+      <md-list-item *ngFor="let item of order.addresses">
+          <i md-list-icon (click)="showQr(item.tokenAddress)" class="fa fa-qrcode"></i>
+          
+        <h4 md-line> {{item.tokenType}} address: {{ item.tokenAddress }}</h4>
+        <p md-line> Status: {{ item.status | tellerStatus }} (updated at: {{ item.updated | dateTime }}) </p>
+        <button md-icon-button (click)="searchDepositAddress(order.address,item.tokenType)" [disabled]="scanning">
+          <md-icon>refresh</md-icon>
+        </button>
+      </md-list-item>
+    </ng-container>
+  </md-list>
+</md-card>
+
+<div class="button-line" *ngIf="otcEnabled">
+</div>
+
+
+
