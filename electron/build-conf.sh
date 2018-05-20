@@ -8,12 +8,12 @@ APP_VERSION=`grep version package.json | sed  's/[,\", ]//g'| awk '{split($0,a,"
 
 
 # package name
-PKG_NAME=`grep name package.json | sed 's/[,\", ]//g' | awk '{split($0,s,":");print s[2]}'`
+PKG_NAME=`grep productName package.json | sed 's/[,\", ]//g' | awk '{split($0,s,":");print tolower(s[2])}'`
 
 # product name
 PDT_NAME=`grep productName package.json | sed 's/[,\", ]//g' | awk '{split($0,s,":");print s[2]}'`
 
-ELN_VERSION="v1.7.9"
+ELN_VERSION="v1.4.13"
 ELN_OUTPUT_BASE=".electron_output"
 ELN_OUTPUT="${ELN_OUTPUT_BASE}/${ELN_VERSION}"
 
@@ -39,8 +39,6 @@ STL_OUTPUT=".standalone_output"
 
 FINAL_OUTPUT="release"
 
-VERSION_FILE="./spo/current-spo.json"
-
 GUI_DIST_DIR="../src/gui/static/dist"  # Do not append "/" to this path
 
 # Variable suffix guide:
@@ -62,34 +60,34 @@ if [[ $GOX_OSARCH == *"darwin/amd64"* ]]; then
 fi
 
 if [[ $GOX_OSARCH == *"linux/amd64"* ]]; then
-    LNX64_ELN="${PDT_NAME}-${APP_VERSION}-gui-linux-x64"
+    LNX64_ELN="${PKG_NAME}-${APP_VERSION}-gui-linux-x64"
     LNX64_ELN_PLT="linux-x64"
     LNX64_ELN_ZIP="${LNX64_ELN}.tar.gz"
-    LNX64_STL="${PDT_NAME}-${APP_VERSION}-bin-linux-x64"
+    LNX64_STL="${PKG_NAME}-${APP_VERSION}-bin-linux-x64"
     LNX64_STL_ZIP="${LNX64_STL}.tar.gz"
     LNX64_OUT="linux_x64"
 fi
 
 if [[ $GOX_OSARCH == *"windows/amd64"* ]]; then
-    WIN64_ELN="${PDT_NAME}-${APP_VERSION}-gui-win-x64"
+    WIN64_ELN="${PKG_NAME}-${APP_VERSION}-gui-win-x64"
     WIN64_ELN_PLT="win32-x64"
     WIN64_ELN_ZIP="${WIN64_ELN}.zip"
-    WIN64_STL="${PDT_NAME}-${APP_VERSION}-bin-win-x64"
+    WIN64_STL="${PKG_NAME}-${APP_VERSION}-bin-win-x64"
     WIN64_STL_ZIP="${WIN64_STL}.zip"
     WIN64_OUT="win_x64"
 fi
 
 if [[ $GOX_OSARCH == *"windows/386"* ]]; then
-    WIN32_ELN="${PDT_NAME}-${APP_VERSION}-gui-win-x86"
+    WIN32_ELN="${PKG_NAME}-${APP_VERSION}-gui-win-x86"
     WIN32_ELN_PLT="win32-ia32"
     WIN32_ELN_ZIP="${WIN32_ELN}.zip"
-    WIN32_STL="${PDT_NAME}-${APP_VERSION}-bin-win-x86"
+    WIN32_STL="${PKG_NAME}-${APP_VERSION}-bin-win-x86"
     WIN32_STL_ZIP="${WIN32_STL}.zip"
     WIN32_OUT="win_ia32"
 fi
 
 if [[ $GOX_OSARCH == *"linux/arm"* ]]; then
-    LNX_ARM_STL="${PDT_NAME}-${APP_VERSION}-bin-linux-arm"
+    LNX_ARM_STL="${PKG_NAME}-${APP_VERSION}-bin-linux-arm"
     LNX_ARM_STL_ZIP="${LNX_ARM_STL}.tar.gz"
     LNX_ARM_OUT="linux_arm"
 fi

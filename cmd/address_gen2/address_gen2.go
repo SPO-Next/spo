@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	bip39 "github.com/spolabs/spo/src/cipher/go-bip39"
-	"github.com/spolabs/spo/src/wallet"
+	bip39 "github.com/spo-next/spo/src/cipher/go-bip39"
+	"github.com/spo-next/spo/src/wallet"
 )
 
 type genInfo struct {
@@ -24,7 +24,7 @@ func run() error {
 	genCount := flag.Int("n", 1, "Number of addresses to generate")
 	seed := flag.String("seed", "", "Seed for deterministic key generation. Will use bip39 as the seed if not provided")
 	strict := flag.Bool("strict", true, "Checks if input is space separated list of words.")
-	coin := flag.String("coin", "spocoin", "address output type: spo/btc")
+	coin := flag.String("coin", "spo", "address output type: spo/btc")
 	secfile := flag.String("secfile", "", "command for file to write the secret keys")
 	addrOut := flag.String("addrfile", "addresses", "command for changing addresses output file")
 	outputInfo := flag.String("infofile", "", "create file with date of generation, seed, coin, number of keys generated")
@@ -34,7 +34,7 @@ func run() error {
 	switch *coin {
 	case "btc", "bitcoin":
 		coinType = wallet.CoinTypeBitcoin
-	case "spo", "spocoin":
+	case "spo", "spo":
 		coinType = wallet.CoinTypeSpo
 	default:
 		return errors.New("unknown coin type")
@@ -110,11 +110,11 @@ func run() error {
 		info.KeysCount = *genCount
 		info.Seed = *seed
 
-		infoJson, err := json.MarshalIndent(info, "", "    ")
+		infoJSON, err := json.MarshalIndent(info, "", "    ")
 		if err != nil {
 			return err
 		}
-		err = ioutil.WriteFile(*outputInfo, infoJson, 0644)
+		err = ioutil.WriteFile(*outputInfo, infoJSON, 0644)
 		if err != nil {
 			return err
 		}

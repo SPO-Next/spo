@@ -20,8 +20,8 @@ import (
 	"os"
 	"sort"
 	//
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/consensus"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/consensus"
 )
 
 var Cfg_print_config bool = true

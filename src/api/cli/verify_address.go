@@ -3,7 +3,7 @@ package cli
 import (
 	gcli "github.com/urfave/cli"
 
-	"github.com/spolabs/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher"
 )
 
 func verifyAddressCmd() gcli.Command {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spolabs/spo/src/api/cli"
+	"github.com/spo-next/spo/src/api/cli"
 )
 
 func main() {

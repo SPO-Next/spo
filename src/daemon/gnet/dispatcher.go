@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/spolabs/spo/src/cipher/encoder"
+	"github.com/spo-next/spo/src/cipher/encoder"
 )
 
 // SendResult result of a single message send
@@ -27,7 +27,7 @@ func newSendResult(addr string, m Message, err error) SendResult {
 
 // Serializes a Message over a net.Conn
 func sendMessage(conn net.Conn, msg Message, timeout time.Duration) error {
-	m := encodeMessage(msg)
+	m := EncodeMessage(msg)
 	return sendByteMessage(conn, m, timeout)
 }
 
@@ -45,12 +45,12 @@ func convertToMessage(id int, msg []byte, debugPrint bool) (Message, error) {
 	}
 
 	if debugPrint {
-		logger.Debug("Convert, Message type %v", t)
+		logger.Debugf("Convert, Message type %v", t)
 	}
 
 	var m Message
 	v := reflect.New(t)
-	//logger.Debug("Giving %d bytes to the decoder", len(msg))
+	//logger.Debugf("Giving %d bytes to the decoder", len(msg))
 	used, err := deserializeMessage(msg, v)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func convertToMessage(id int, msg []byte, debugPrint bool) (Message, error) {
 func deserializeMessage(msg []byte, v reflect.Value) (n int, e error) {
 	defer func() {
 		if r := recover(); r != nil {
-			logger.Debug("Recovering from deserializer panic: %v", r)
+			logger.Debugf("Recovering from deserializer panic: %v", r)
 			switch x := r.(type) {
 			case string:
 				e = errors.New(x)
@@ -89,8 +89,8 @@ func deserializeMessage(msg []byte, v reflect.Value) (n int, e error) {
 	return
 }
 
-// Packgs a Message into []byte containing length, id and data
-var encodeMessage = func(msg Message) []byte {
+// EncodeMessage packs a Message into []byte containing length, id and data
+func EncodeMessage(msg Message) []byte {
 	t := reflect.ValueOf(msg).Elem().Type()
 	msgID, succ := MessageIDMap[t]
 	if !succ {

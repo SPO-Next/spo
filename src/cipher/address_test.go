@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/spolabs/spo/src/cipher/base58"
+	"github.com/spo-next/spo/src/cipher/base58"
 )
 
 func TestMustDecodeBase58Address(t *testing.T) {
@@ -239,4 +239,13 @@ func TestAddressBulk(t *testing.T) {
 		require.Equal(t, a2, a)
 
 	}
+}
+
+func TestAddressNull(t *testing.T) {
+	var a Address
+	require.True(t, a.Null())
+
+	p, _ := GenerateKeyPair()
+	a = AddressFromPubKey(p)
+	require.False(t, a.Null())
 }

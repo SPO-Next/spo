@@ -1,5 +1,5 @@
-import { Component, Inject, Input, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MD_DIALOG_DATA } from '@angular/material';
+import { Component, Inject, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 declare var QRCode: any;
 
@@ -11,19 +11,19 @@ declare var QRCode: any;
 export class QrCodeComponent implements OnInit {
   @ViewChild('qr') qr: any;
 
-  size: number = 300;
-  level: string = 'M';
-  colordark: string = '#000000';
-  colorlight: string = '#ffffff';
-  usesvg: boolean = false;
+  size = 300;
+  level = 'M';
+  colordark = '#000000';
+  colorlight = '#ffffff';
+  usesvg = false;
 
   constructor(
-    @Inject(MD_DIALOG_DATA) private data: any,
+    @Inject(MAT_DIALOG_DATA) private data: any,
     private el: ElementRef
   ) { }
 
   ngOnInit() {
-    new QRCode(this.qr.nativeElement, {
+    const qrcode = new QRCode(this.qr.nativeElement, {
       text: this.data.address,
       width: this.size,
       height: this.size,

@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/wallet"
 	gcli "github.com/urfave/cli"
+
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/wallet"
 )
 
 func addPrivateKeyCmd(cfg Config) gcli.Command {
@@ -63,10 +64,13 @@ func addPrivateKeyCmd(cfg Config) gcli.Command {
 
 // PUBLIC
 
+// WalletLoadError is returned if a wallet could not be loaded
 type WalletLoadError error
+
+// WalletSaveError is returned if a wallet could not be saved
 type WalletSaveError error
 
-// Adds a private key to a *wallet.Wallet. Caller should save the wallet afterwards
+// AddPrivateKey adds a private key to a *wallet.Wallet. Caller should save the wallet afterwards
 func AddPrivateKey(wlt *wallet.Wallet, key string) error {
 	sk, err := cipher.SecKeyFromHex(key)
 	if err != nil {
@@ -85,7 +89,7 @@ func AddPrivateKey(wlt *wallet.Wallet, key string) error {
 	return wlt.AddEntry(entry)
 }
 
-// Adds a private key to a wallet based on filename.  Will save the wallet after modifying.
+// AddPrivateKeyToFile adds a private key to a wallet based on filename.  Will save the wallet after modifying.
 func AddPrivateKeyToFile(walletFile, key string) error {
 	wlt, err := wallet.Load(walletFile)
 	if err != nil {

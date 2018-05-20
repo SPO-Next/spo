@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spolabs/spo/src/cipher"
-	bip39 "github.com/spolabs/spo/src/cipher/go-bip39"
-	"github.com/spolabs/spo/src/wallet"
+	"github.com/spo-next/spo/src/cipher"
+	bip39 "github.com/spo-next/spo/src/cipher/go-bip39"
+	"github.com/spo-next/spo/src/wallet"
 )
 
 // Note: Address_gen generates public keys and addresses
@@ -25,8 +25,6 @@ func main() {
 	genCount := flag.Int("n", 1, "Number of addresses to generate")
 	hideSecKey := flag.Bool("s", false, "Hide the secret key from the output")
 	isBitcoin := flag.Bool("b", false, "Print address as a bitcoin address")
-	isSpo := flag.Bool("p", false, "Print address as a spo address")
-
 	hexSeed := flag.Bool("x", false, "Use hex(sha256sum(rand(1024))) (CSPRNG-generated) as the seed if seed is not provided")
 	onlyAddr := flag.Bool("only-addr", false, "Only show generated address list. Hide seed, secret key and public key")
 	seed := flag.String("seed", "", "Seed for deterministic key generation. Will use bip39 as the seed if not provided")
@@ -35,10 +33,8 @@ func main() {
 	var coinType wallet.CoinType
 	if *isBitcoin {
 		coinType = wallet.CoinTypeBitcoin
-	} else if *isSpo {
-		coinType = wallet.CoinTypeSpo
 	} else {
-		coinType = wallet.CoinTypeSkycoin
+		coinType = wallet.CoinTypeSpo
 	}
 
 	if *seed == "" {

@@ -3,21 +3,12 @@ package gui
 import (
 	"net/http"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/daemon"
-	wh "github.com/spolabs/spo/src/util/http" //http,json helpers
-	"github.com/spolabs/spo/src/visor/historydb"
+	"github.com/spo-next/spo/src/cipher"
+	wh "github.com/spo-next/spo/src/util/http" //http,json helpers
+	"github.com/spo-next/spo/src/visor/historydb"
 )
 
-// RegisterUxOutHandlers binds uxout entries.
-func RegisterUxOutHandlers(mux *http.ServeMux, gateway *daemon.Gateway) {
-	// get uxout by id.
-	mux.HandleFunc("/uxout", getUxOutByID(gateway))
-	// get all the address affected uxouts.
-	mux.HandleFunc("/address_uxouts", getAddrUxOuts(gateway))
-}
-
-func getUxOutByID(gateway *daemon.Gateway) http.HandlerFunc {
+func getUxOutByID(gateway Gatewayer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			wh.Error405(w)
@@ -47,11 +38,11 @@ func getUxOutByID(gateway *daemon.Gateway) http.HandlerFunc {
 			return
 		}
 
-		wh.SendOr404(w, historydb.NewUxOutJSON(uxout))
+		wh.SendJSONOr500(logger, w, historydb.NewUxOutJSON(uxout))
 	}
 }
 
-func getAddrUxOuts(gateway *daemon.Gateway) http.HandlerFunc {
+func getAddrUxOuts(gateway Gatewayer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			wh.Error405(w)
@@ -69,12 +60,18 @@ func getAddrUxOuts(gateway *daemon.Gateway) http.HandlerFunc {
 			return
 		}
 
-		uxs, err := gateway.GetAddrUxOuts(cipherAddr)
+		uxs, err := gateway.GetAddrUxOuts([]cipher.Address{cipherAddr})
 		if err != nil {
 			wh.Error400(w, err.Error())
 			return
 		}
 
-		wh.SendOr404(w, uxs)
+		//Convert slice UxOut to slice of UxOutJson
+		uxsJSON := make([]*historydb.UxOutJSON, len(uxs))
+		for i, ux := range uxs {
+			uxsJSON[i] = historydb.NewUxOutJSON(ux)
+		}
+
+		wh.SendJSONOr500(logger, w, uxsJSON)
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/spolabs/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher"
 )
 
 // CreateAddresses genCount addresses deterministically from seed.  coinType is either CoinTypeBitcoin or CoinTypeSpo.
@@ -34,10 +34,8 @@ func CreateAddresses(coinType CoinType, seed string, genCount int, hideSecretKey
 		switch coinType {
 		case CoinTypeBitcoin:
 			entry = GetBitcoinWalletEntry(pub, sec)
-		case CoinTypeSkycoin:
-			entry = GetSkycoinWalletEntry(pub, sec)
 		case CoinTypeSpo:
-			entry = GetSpoWalletEntry(pub, sec)
+			entry = GetSkycoinWalletEntry(pub, sec)
 		default:
 			return nil, fmt.Errorf(`unknown coinType "%s"`, coinType)
 		}
@@ -54,15 +52,6 @@ func CreateAddresses(coinType CoinType, seed string, genCount int, hideSecretKey
 
 // GetSkycoinWalletEntry returns a ReadableEntry in Skycoin format
 func GetSkycoinWalletEntry(pub cipher.PubKey, sec cipher.SecKey) ReadableEntry {
-	return ReadableEntry{
-		Address: cipher.AddressFromPubKey(pub).String(),
-		Public:  pub.Hex(),
-		Secret:  sec.Hex(),
-	}
-}
-
-// GetSpoWalletEntry returns a ReadableEntry in Spo format
-func GetSpoWalletEntry(pub cipher.PubKey, sec cipher.SecKey) ReadableEntry {
 	return ReadableEntry{
 		Address: cipher.AddressFromPubKey(pub).String(),
 		Public:  pub.Hex(),

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/spolabs/spo/src/cipher/base58"
+	"github.com/spo-next/spo/src/cipher/base58"
 )
 
 /*
@@ -116,6 +116,11 @@ func addressFromBytes(b []byte) (addr Address, err error) {
 	return a, nil
 }
 
+// Null returns true if the address is null (0x0000....)
+func (addr Address) Null() bool {
+	return addr == Address{}
+}
+
 // Bytes return address as a byte slice
 func (addr *Address) Bytes() []byte {
 	b := make([]byte, 20+1+4)
@@ -187,19 +192,6 @@ Bitcoin Functions
 
 // BitcoinAddressFromPubkey prints the bitcoin address for a seckey
 func BitcoinAddressFromPubkey(pubkey PubKey) string {
-	b1 := SumSHA256(pubkey[:])
-	b2 := HashRipemd160(b1[:])
-	b3 := append([]byte{byte(0)}, b2[:]...)
-	b4 := DoubleSHA256(b3)
-	b5 := append(b3, b4[0:4]...)
-	return string(base58.Hex2Base58(b5))
-	// return Address{
-	// 	Version: 0,
-	// 	Key:     b2,
-	// }
-}
-
-func SpoAddressFromPubKey(pubkey PubKey) string {
 	b1 := SumSHA256(pubkey[:])
 	b2 := HashRipemd160(b1[:])
 	b3 := append([]byte{byte(0)}, b2[:]...)

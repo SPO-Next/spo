@@ -7,9 +7,9 @@ import (
 
 	"github.com/boltdb/bolt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/visor/bucket"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/visor/bucket"
 )
 
 var (
@@ -115,7 +115,7 @@ func NewBlockchain(db *bolt.DB, walker Walker) (*Blockchain, error) {
 		return nil, err
 	}
 
-	sigs, err := NewBlockSigs(db)
+	sigs, err := newBlockSigs(db)
 	if err != nil {
 		return nil, err
 	}
@@ -170,10 +170,7 @@ func (bc *Blockchain) AddBlockWithTx(tx *bolt.Tx, sb *coin.SignedBlock) error {
 
 // processBlockWithTx process block with *bolt.Tx
 func (bc *Blockchain) processBlockWithTx(tx *bolt.Tx, b *coin.SignedBlock) error {
-	return bc.updateWithTx(tx,
-		bc.updateHeadSeq(b),
-		bc.unspent.ProcessBlock(b),
-		bc.cacheGenesisBlock(b))
+	return bc.updateWithTx(tx, bc.updateHeadSeq(b), bc.unspent.ProcessBlock(b), bc.cacheGenesisBlock(b))
 }
 
 // Head returns head block, returns error if no block does exist

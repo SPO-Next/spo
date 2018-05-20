@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/wallet"
 	gcli "github.com/urfave/cli"
+
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/wallet"
 )
 
 func generateAddrsCmd(cfg Config) gcli.Command {
@@ -76,7 +77,7 @@ func generateAddrs(c *gcli.Context) error {
 	}
 
 	if jsonFmt {
-		s, err := FormatAddressesAsJson(addrs)
+		s, err := FormatAddressesAsJSON(addrs)
 		if err != nil {
 			return err
 		}
@@ -88,13 +89,17 @@ func generateAddrs(c *gcli.Context) error {
 	return nil
 }
 
+// GenerateAddressesInFile generates addresses in given wallet file
 func GenerateAddressesInFile(walletFile string, num uint64) ([]cipher.Address, error) {
 	wlt, err := wallet.Load(walletFile)
 	if err != nil {
 		return nil, WalletLoadError(err)
 	}
 
-	addrs := wlt.GenerateAddresses(num)
+	addrs, err := wlt.GenerateAddresses(num)
+	if err != nil {
+		return nil, err
+	}
 
 	dir, err := filepath.Abs(filepath.Dir(walletFile))
 	if err != nil {
@@ -108,8 +113,9 @@ func GenerateAddressesInFile(walletFile string, num uint64) ([]cipher.Address, e
 	return addrs, nil
 }
 
-func FormatAddressesAsJson(addrs []cipher.Address) (string, error) {
-	d, err := formatJson(struct {
+// FormatAddressesAsJSON converts []cipher.Address to strings and formats the array into a standard JSON object wrapper
+func FormatAddressesAsJSON(addrs []cipher.Address) (string, error) {
+	d, err := formatJSON(struct {
 		Addresses []string `json:"addresses"`
 	}{
 		Addresses: AddressesToStrings(addrs),
@@ -122,10 +128,12 @@ func FormatAddressesAsJson(addrs []cipher.Address) (string, error) {
 	return string(d), nil
 }
 
+// FormatAddressesAsJoinedArray converts []cipher.Address to strings and concatenates them with a comma
 func FormatAddressesAsJoinedArray(addrs []cipher.Address) string {
 	return strings.Join(AddressesToStrings(addrs), ",")
 }
 
+// AddressesToStrings converts []cipher.Address to []string
 func AddressesToStrings(addrs []cipher.Address) []string {
 	if addrs == nil {
 		return nil

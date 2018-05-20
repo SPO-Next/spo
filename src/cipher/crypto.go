@@ -9,11 +9,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/spolabs/spo/src/cipher/ripemd160"
+	"github.com/spo-next/spo/src/cipher/ripemd160"
 
-	"github.com/spolabs/spo/src/cipher/secp256k1-go"
+	"github.com/spo-next/spo/src/cipher/secp256k1-go"
 
-	"github.com/spolabs/spo/src/util/logging"
+	"github.com/spo-next/spo/src/util/logging"
 )
 
 var (
@@ -291,7 +291,7 @@ func VerifySignedHash(sig Sig, hash SHA256) error {
 	}
 	if secp256k1.VerifySignature(hash[:], sig[:], rawPubKey) != 1 {
 		// If this occurs, secp256k1 is bugged
-		logger.Critical("Recovered public key is not valid for signed hash")
+		logger.Critical().Error("Recovered public key is not valid for signed hash")
 		return errors.New("Signature invalid for hash")
 	}
 	return nil

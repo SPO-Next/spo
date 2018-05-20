@@ -5,7 +5,7 @@ import (
 
 	"github.com/boltdb/bolt"
 
-	"github.com/spolabs/spo/src/visor/bucket"
+	"github.com/spo-next/spo/src/visor/bucket"
 )
 
 var (

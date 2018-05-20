@@ -3,7 +3,6 @@ package historydb
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"testing"
 	"time"
@@ -12,27 +11,25 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/encoder"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/testutil"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/encoder"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/testutil"
+	"github.com/spo-next/spo/src/util/logging"
 )
 
 var (
 	genPublic, genSecret = cipher.GenerateKeyPair()
 	genAddress           = cipher.AddressFromPubKey(genPublic)
-	testMaxSize          = 1024 * 1024
-	blockBkt             = []byte("blocks")
 	transactionBkt       = []byte("transactions")
 	outputBkt            = []byte("uxouts")
 	addressInBkt         = []byte("address_in")
-	addressOutBkt        = []byte("address_out")
+	log                  = logging.MustGetLogger("historydb_test")
 )
 
 var _genTime uint64 = 1000
 var _incTime uint64 = 3600 * 1000
 var _genCoins uint64 = 1000e6
-var _genCoinHours uint64 = 1000 * 1000
 
 func _feeCalc(t *coin.Transaction) (uint64, error) {
 	return 0, nil

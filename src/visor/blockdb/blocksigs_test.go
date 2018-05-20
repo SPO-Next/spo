@@ -6,16 +6,16 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/require"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/encoder"
-	"github.com/spolabs/spo/src/testutil"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/encoder"
+	"github.com/spo-next/spo/src/testutil"
 )
 
 func TestNewBlockSigs(t *testing.T) {
 	db, closeDB := testutil.PrepareDB(t)
 	defer closeDB()
 
-	sigs, err := NewBlockSigs(db)
+	sigs, err := newBlockSigs(db)
 	require.NoError(t, err)
 	require.NotNil(t, sigs)
 
@@ -97,7 +97,7 @@ func TestBlockSigsGet(t *testing.T) {
 				return nil
 			})
 
-			sigs, err := NewBlockSigs(db)
+			sigs, err := newBlockSigs(db)
 			require.NoError(t, err)
 			sg, ok, err := sigs.Get(tc.hash)
 			require.Equal(t, tc.expect.err, err)
@@ -117,7 +117,7 @@ func TestBlockSigsAddWithTx(t *testing.T) {
 	h := testutil.RandSHA256(t)
 	sig := cipher.SignHash(h, s)
 
-	sigs, err := NewBlockSigs(db)
+	sigs, err := newBlockSigs(db)
 	require.NoError(t, err)
 
 	db.Update(func(tx *bolt.Tx) error {

@@ -6,16 +6,15 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class TellerStatusPipe implements PipeTransform {
 
   transform(value: any): any {
-    console.log(value);
     switch (value) {
-      case 'waiting_deposit':
-        return 'Waiting for deposit or confirmation';
-      case 'waiting_send':
-        return 'Waiting to send Spo';
-      case 'waiting_confirm':
-        return 'Waiting for confirmation';
       case 'done':
         return 'Completed';
+      case 'waiting_confirm':
+        return 'Waiting for confirmation';
+      case 'waiting_deposit':
+        return 'Waiting for Bitcoin deposit';
+      case 'waiting_send':
+        return 'Waiting to send Skycoin';
       default:
         return 'Unknown';
     }

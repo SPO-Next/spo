@@ -3,8 +3,9 @@ package cli
 import (
 	"fmt"
 
-	"github.com/spolabs/spo/src/api/webrpc"
 	gcli "github.com/urfave/cli"
+
+	"github.com/spo-next/spo/src/api/webrpc"
 )
 
 func sendCmd() gcli.Command {
@@ -54,7 +55,7 @@ func sendCmd() gcli.Command {
 		},
 		OnUsageError: onCommandUsageError(name),
 		Action: func(c *gcli.Context) error {
-			rpcClient := RpcClientFromContext(c)
+			rpcClient := RPCClientFromContext(c)
 
 			rawtx, err := createRawTxCmdHandler(c)
 			if err != nil {
@@ -69,7 +70,7 @@ func sendCmd() gcli.Command {
 
 			jsonFmt := c.Bool("json")
 			if jsonFmt {
-				return printJson(struct {
+				return printJSON(struct {
 					Txid string `json:"txid"`
 				}{
 					Txid: txid,

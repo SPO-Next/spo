@@ -1,3 +1,4 @@
+// nolint: golint
 package secp256k1
 
 import (
@@ -5,7 +6,7 @@ import (
 	"encoding/hex"
 	"log"
 
-	secp "github.com/spolabs/spo/src/cipher/secp256k1-go/secp256k1-go2"
+	secp "github.com/spo-next/spo/src/cipher/secp256k1-go/secp256k1-go2"
 )
 
 //intenal, may fail

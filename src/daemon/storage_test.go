@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/spolabs/spo/src/daemon/pex"
-	"github.com/spolabs/spo/src/util/utc"
+	"github.com/spo-next/spo/src/daemon/pex"
+	"github.com/spo-next/spo/src/util/utc"
 )
 
 func TestStoreAdd(t *testing.T) {

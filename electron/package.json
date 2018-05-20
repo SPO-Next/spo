@@ -1,12 +1,13 @@
 {
     "name": "spo",
-    "productName": "SPO",
-    "author": "Spolabs team",
+    "productName": "Spo",
+    "author": "spo",
     "main": "src/electron-main.js",
-    "version": "0.21.1",
-    "description": "SPO wallet",
+    "version": "0.23.0",
+    "description": "spo wallet",
+    "license": "MIT",
     "build": {
-        "appId": "io.spolabs.spo",
+        "appId": "io.spo.spo",
         "nsis": {
             "oneClick": false,
             "allowToChangeInstallationDirectory": true
@@ -21,6 +22,7 @@
             ]
         },
         "win": {
+            "target": "nsis",
             "extraFiles": [
                 {
                     "from": ".gox_output/${os}_${arch}",
@@ -34,6 +36,10 @@
                 {
                     "from": ".gox_output/${os}_${arch}",
                     "to": "./resources/app"
+                },
+                {
+                    "from": "build/icons/icon512x512.png",
+                    "to": "./Resources"
                 }
             ]
         },
@@ -46,8 +52,7 @@
                 "from": "../src/gui/static/dist/",
                 "to": "./app/dist/",
                 "filter": [
-                    "**/*",
-                    "!current-spo.json"
+                    "**/*"
                 ]
             },
             {
@@ -68,10 +73,10 @@
         "pack-mac": "build --dir -m -p=never"
     },
     "devDependencies": {
-        "electron": "^1.7.11",
-        "electron-builder": "^19.56.2"
+        "electron": "^1.8.0",
+        "electron-builder": "^19.55.0"
     },
     "dependencies": {
-        "electron-log": "^2.2.14"
+        "electron-log": "^2.2.9"
     }
 }

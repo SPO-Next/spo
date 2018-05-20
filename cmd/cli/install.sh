@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 
-go build
-mv cli $GOPATH/bin/spo-cli
+go build -o $GOPATH/bin/spo-cli .

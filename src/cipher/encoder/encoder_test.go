@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/spolabs/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher"
 )
 
 func randBytes(n int) []byte {

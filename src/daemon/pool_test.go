@@ -2,7 +2,7 @@ package daemon
 
 import (
 	"time"
-	//"github.com/spolabs/spo/src/daemon/gnet"
+	//"github.com/spo-next/spo/src/daemon/gnet"
 )
 
 // func TestInitPool(t *testing.T) {

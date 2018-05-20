@@ -9,23 +9,18 @@ import (
 
 	"github.com/boltdb/bolt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/testutil"
-	"github.com/spolabs/spo/src/visor/bucket"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/testutil"
+	"github.com/spo-next/spo/src/visor/bucket"
 )
 
 var (
-	genPublic, genSecret = cipher.GenerateKeyPair()
-	genAddress           = cipher.AddressFromPubKey(genPublic)
-	testMaxSize          = 1024 * 1024
-
-	genTime      uint64 = 1000
-	incTime      uint64 = 3600 * 1000
-	genCoins     uint64 = 1000e6
-	genCoinHours uint64 = 1000 * 1000
-
-	failedWhenSave bool
+	genPublic, genSecret        = cipher.GenerateKeyPair()
+	genAddress                  = cipher.AddressFromPubKey(genPublic)
+	genTime              uint64 = 1000
+	genCoinHours         uint64 = 1000 * 1000
+	failedWhenSave       bool
 )
 
 func _feeCalc(t *coin.Transaction) (uint64, error) {

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/visor"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/visor"
 
 	gcli "github.com/urfave/cli"
 )
@@ -31,14 +31,14 @@ func transactionCmd() gcli.Command {
 				return errors.New("invalid txid")
 			}
 
-			rpcClient := RpcClientFromContext(c)
+			rpcClient := RPCClientFromContext(c)
 
 			tx, err := rpcClient.GetTransactionByID(txid)
 			if err != nil {
 				return err
 			}
 
-			return printJson(tx)
+			return printJSON(tx)
 		},
 	}
 }

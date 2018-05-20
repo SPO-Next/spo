@@ -3,9 +3,9 @@ package blockdb
 import (
 	"github.com/boltdb/bolt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/encoder"
-	"github.com/spolabs/spo/src/visor/bucket"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/encoder"
+	"github.com/spo-next/spo/src/visor/bucket"
 )
 
 // blockSigs manages known blockSigs as received.
@@ -26,8 +26,8 @@ var (
 	blockSigsBkt = []byte("block_sigs")
 )
 
-// NewBlockSigs create block signature buckets
-func NewBlockSigs(db *bolt.DB) (*blockSigs, error) {
+// newBlockSigs create block signature buckets
+func newBlockSigs(db *bolt.DB) (*blockSigs, error) {
 	sigs, err := bucket.New(blockSigsBkt, db)
 	if err != nil {
 		return nil, err

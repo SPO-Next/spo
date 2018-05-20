@@ -6,9 +6,10 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/visor"
 	gcli "github.com/urfave/cli"
+
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/visor"
 )
 
 const (
@@ -42,7 +43,8 @@ func checkdb(c *gcli.Context) error {
 	}
 
 	db, err := bolt.Open(dbpath, 0600, &bolt.Options{
-		Timeout: 5 * time.Second,
+		Timeout:  5 * time.Second,
+		ReadOnly: true,
 	})
 
 	if err != nil {
@@ -61,6 +63,7 @@ func checkdb(c *gcli.Context) error {
 	return nil
 }
 
+// IntegrityCheck checks database integrity
 func IntegrityCheck(db *bolt.DB, genesisPubkey cipher.PubKey) error {
 	_, err := visor.NewBlockchain(db, genesisPubkey, visor.Arbitrating(true))
 	return err

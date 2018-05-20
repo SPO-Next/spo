@@ -1,6 +1,6 @@
 package visor
 
-import "github.com/spolabs/spo/src/coin"
+import "github.com/spo-next/spo/src/coin"
 
 const (
 	// Maximum supply of spo tokens

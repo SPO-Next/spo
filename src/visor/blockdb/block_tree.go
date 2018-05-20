@@ -6,10 +6,10 @@ import (
 
 	"github.com/boltdb/bolt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/encoder"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/visor/bucket"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/encoder"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/visor/bucket"
 )
 
 var (

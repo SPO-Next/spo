@@ -12,8 +12,9 @@ const cwd = require('process').cwd();
 
 // This adds refresh and devtools console keybindings
 // Page can refresh with cmd+r, ctrl+r, F5
-// Devtools can be toggled with cmd+alt+i, ctrl+shift+i, 
-require('electron-debug')({ enabled: true, showDevTools: false });
+// Devtools can be toggled with cmd+alt+i, ctrl+shift+i, F12
+require('electron-debug')({enabled: true, showDevTools: false});
+require('electron-context-menu')({});
 
 
 global.eval = function() { throw new Error('bad!!'); }
@@ -22,7 +23,7 @@ const defaultURL = 'http://127.0.0.1:8620/';
 let currentURL;
 
 // Force everything localhost, in case of a leak
-app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1, EXCLUDE teller.spo.network');
+app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1, EXCLUDE api.coinmarketcap.com, api.github.com');
 app.commandLine.appendSwitch('ssl-version-fallback-min', 'tls1.2');
 app.commandLine.appendSwitch('--no-proxy-server');
 app.setAsDefaultProtocolClient('spo');
@@ -68,8 +69,13 @@ function startSpo() {
   var args = [
     '-launch-browser=false',
     '-gui-dir=' + path.dirname(exe),
-    '-color-log=false', // must be disabled or web interface detection
+    '-color-log=false', // must be disabled for web interface detection
     '-logtofile=true',
+    '-download-peerlist=true',
+    '-enable-seed-api=true',
+    '-enable-wallet-api=true',
+    '-rpc-interface=false',
+    "-disable-csrf=false"
     // will break
     // broken (automatically generated certs do not work):
     // '-web-interface-https=true',
@@ -78,46 +84,39 @@ function startSpo() {
 
   spo.on('error', (e) => {
     dialog.showErrorBox('Failed to start spo', e.toString());
-  app.quit();
-});
+    app.quit();
+  });
 
-spo.stdout.on('data', (data) => {
+  spo.stdout.on('data', (data) => {
     console.log(data.toString());
+    // Scan for the web URL string
+    if (currentURL) {
+      return
+    }
+    const marker = 'Starting web interface on ';
+    var i = data.indexOf(marker);
+    if (i === -1) {
+      return
+    }
+    currentURL = defaultURL;
+    app.emit('spo-ready', { url: currentURL });
+  });
 
-  // Scan for the web URL string
-  if (currentURL) {
-    return
-  }
-  const marker = 'Starting web interface on ';
-  var i = data.indexOf(marker);
-  if (i === -1) {
-    return
-  }
-  // var j = data.indexOf('\n', i);
-
-  // // dialog.showErrorBox('index of newline: ', j);
-  // if (j === -1) {
-  //     throw new Error('web interface url log line incomplete');
-  // }
-  // var url = data.slice(i + marker.length, j);
-  // currentURL = url.toString();
-  currentURL = defaultURL;
-  app.emit('spo-ready', { url: currentURL });
-});
-
-spo.stderr.on('data', (data) => {
+  spo.stderr.on('data', (data) => {
     console.log(data.toString());
-});
+  });
 
-spo.on('close', (code) => {
+  spo.on('close', (code) => {
+    // log.info('Spo closed');
     console.log('Spo closed');
-  reset();
-});
+    reset();
+  });
 
-spo.on('exit', (code) => {
+  spo.on('exit', (code) => {
+    // log.info('Spo exited');
     console.log('Spo exited');
-  reset();
-});
+    reset();
+  });
 }
 
 function createWindow(url) {
@@ -125,11 +124,21 @@ function createWindow(url) {
     url = defaultURL;
   }
 
+  // To fix appImage doesn't show icon in dock issue.
+  var appPath = app.getPath('exe');
+  var iconPath = (() => {
+    switch (process.platform) {
+      case 'linux':
+        return path.join(path.dirname(appPath), './resources/icon512x512.png');
+    }
+  })()
+
   // Create the browser window.
   win = new BrowserWindow({
     width: 1200,
     height: 900,
     title: 'Spo',
+    icon: iconPath,
     nodeIntegration: false,
     webPreferences: {
       webgl: false,
@@ -142,7 +151,7 @@ function createWindow(url) {
 
   const ses = win.webContents.session
   ses.clearCache(function () {
-    console.log('Cleared the caching of the skycoin wallet.');
+    console.log('Cleared the caching of the spo wallet.');
   });
 
   ses.clearStorageData([],function(){
@@ -160,13 +169,18 @@ function createWindow(url) {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null;
-});
+  });
+
+  win.webContents.on('will-navigate', function(e, url) {
+    e.preventDefault();
+    require('electron').shell.openExternal(url);
+  });
 
   // create application's main menu
   var template = [{
-    label: "SPO",
+    label: "Spo",
     submenu: [
-      { label: "About SPO", selector: "orderFrontStandardAboutPanel:" },
+      { label: "About Spo", selector: "orderFrontStandardAboutPanel:" },
       { type: "separator" },
       { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); } }
     ]

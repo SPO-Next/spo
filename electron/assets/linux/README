@@ -1,8 +1,8 @@
-spo
+samos
 =======
 
 
-The spo client binary uses a localhost http interface for its GUI.
+The samos client binary uses a localhost http interface for its GUI.
 By default it runs on http://127.0.0.1:12176.  This is configurable with
 
     --web-interface-port
@@ -10,10 +10,10 @@ By default it runs on http://127.0.0.1:12176.  This is configurable with
 
 To see a list of all options, use the -h flag.
 
-The spo.run script starts the spo client binary and opens the interface
-in your browser with xdg-open.  It is not aware of any changes to spo client's
-web interface configuration, you can override the url with spo_WEB_URL or
-by editing the spo.url file.
+The samos.run script starts the samos client binary and opens the interface
+in your browser with xdg-open.  It is not aware of any changes to samos client's
+web interface configuration, you can override the url with SAMOS_WEB_URL or
+by editing the samos.url file.
 
 If there is no webpage available, try reloading the page. The page may have opened
-before the spo client finished loading.
+before the samos client finished loading.

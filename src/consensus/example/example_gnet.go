@@ -22,10 +22,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/spolabs/spo/src/daemon/gnet"
+	"github.com/spo-next/spo/src/daemon/gnet"
 	//
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/consensus"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/consensus"
 )
 
 var Cfg_print_config bool = true

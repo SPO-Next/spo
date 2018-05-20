@@ -1,58 +1,68 @@
-<p *ngIf="!otcEnabled">Sorry, otc has currently been disabled!</p>
-<md-card *ngIf="otcEnabled">
-  <md-card-title>Support SPO</md-card-title>
-  <md-card class="skycoin-details">
-    You can get SPO Tokens directly from your wallet using our SPO Token Teller service.
-    <br/>
-    {{tellerNotice.desc}}    
-  </md-card>
- 
-
-  <md-card>   
-    <div style="display:none">
-      The current rate is 0.0002 BTC per
-      SPO. To support SPO, request a BTC deposit address. Once you have a BTC deposit address, any BTC deposits will
-      automatically be added to your selected address.
-      <button md-icon-button (click)="searchDepositAddress(address.address)" [disabled]="scanning">
-        <md-icon>refresh</md-icon>
-      </button>
-    </div>
-  <md-list>
-    <md-list-item *ngFor="let item of supportedTokens">
-      <div class="spo-buy-typelist">
-        <div class="spo-buy-typelist-content">
-          <label>{{item.label}}</label>
-          <p>{{item.description}}</p>
+<app-header></app-header>
+<div class="-background-container">
+  <div class="container">
+    <div [formGroup]="form" class="-paper" *ngIf="config">
+      <div class="-step">
+        <div class="-number">
+          <span class="primary-gradient-background">1</span>
         </div>
-        <div class="spo-buy-typelist-btnbox">
-          <a md-raised-button color="primary" (click)="addDepositAddress(item.token)">Deposit</a>
+        <div class="-instructions flex-fill">
+          <h3>Deposit Location</h3>
+          <p>Choose a wallet where you'd like us to deposit your Spo after we receive your Bitcoin.</p>
+          <div class="form-field">
+            <select formControlName="wallet" id="wallet" class="-wallet" required>
+              <option disabled selected>Make a choice</option>
+              <option *ngFor="let wallet of wallets" [value]="wallet.filename">
+                {{ wallet.label }} - <span class="-coins">{{ wallet.coins }} SPO</span>
+              </option>
+            </select>
+          </div>
+          <span class="-subtitle">
+          Each time a new wallet and address are selected, a new BTC address is generated. A single Spo address can
+          have up to 5 BTC addresses assigned to it.
+        </span>
         </div>
       </div>
-    </md-list-item>
-  </md-list>  
-</md-card>
-
-
-
-  <md-list>
-    <ng-container *ngFor="let order of (purchaseService.all() | async); let i = index">
-      <md-divider *ngIf="i"></md-divider>
-      <h3 md-subheader>SPO address: {{ order.address }}</h3>
-      <md-list-item *ngFor="let item of order.addresses">
-          <i md-list-icon (click)="showQr(item.tokenAddress)" class="fa fa-qrcode"></i>
-          
-        <h4 md-line> {{item.tokenType}} address: {{ item.tokenAddress }}</h4>
-        <p md-line> Status: {{ item.status | tellerStatus }} (updated at: {{ item.updated | dateTime }}) </p>
-        <button md-icon-button (click)="searchDepositAddress(order.address,item.tokenType)" [disabled]="scanning">
-          <md-icon>refresh</md-icon>
-        </button>
-      </md-list-item>
-    </ng-container>
-  </md-list>
-</md-card>
-
-<div class="button-line" *ngIf="otcEnabled">
+      <div class="-step" *ngIf="order">
+        <div class="-number">
+          <span class="primary-gradient-background">2</span>
+        </div>
+        <div class="-instructions flex-fill">
+          <h3>Send Bitcoin</h3>
+          <p>
+            Send Bitcoin to the address below. Once received, we will deposit the Spo to a new address in the wallet
+            selected above at the current rate of <span>{{ config.spo_btc_exchange_rate }} SPO/BTC</span>.
+          </p>
+          <span class="-address">
+          {{ order.deposit_address }}
+          </span>
+          <span class="-subtitle">
+          Only send multiple of the SPO/BTC rate! Spo is sent in whole number; fractional SPO is not sent!
+        </span>
+        </div>
+      </div>
+      <div class="-step" *ngIf="order">
+        <div class="-number">
+          <span class="primary-gradient-background">3</span>
+        </div>
+        <div class="-instructions flex-fill">
+          <h3>Receive Spo</h3>
+          <p>
+            After receiving your Bitcoin, we'll send you your Spo. It may take anywhere between 20 minutes and an hour
+            to receive your SPO.
+          </p>
+          <span class="-status">
+            Status: {{ order.status | tellerStatus }}
+          </span>
+          <app-button #button (action)="checkStatus()" class="primary">
+            Check Status
+          </app-button>
+          <app-button #button (action)="removeOrder()">
+            New Order
+          </app-button>
+        </div>
+      </div>
+    </div>
+    <img src="../../../../assets/img/otc-background.jpg" class="-background-image">
+  </div>
 </div>
-
-
-

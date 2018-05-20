@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/visor"
 	"github.com/stretchr/testify/require"
+
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/visor"
 )
 
 const (
@@ -16,10 +17,6 @@ const (
 	txHeight    = uint64(103)
 	txConfirmed = true
 )
-
-var emptyTransactionStr = `{
-        "transaction": null
-    }`
 
 func decodeRawTransaction(rawTxStr string) *visor.Transaction {
 	rawTx, err := hex.DecodeString(rawTxStr)
@@ -174,10 +171,10 @@ func Test_injectTransactionHandler(t *testing.T) {
 					ID:      "1",
 					Jsonrpc: jsonRPC,
 					Method:  "inject_transaction",
-					Params:  []byte(`["abcdefghijk"]`),
+					Params:  []byte(`["abcdeffedca"]`),
 				},
 			},
-			makeErrorResponse(errCodeInvalidParams, "invalid raw transaction:encoding/hex: odd length hex string"),
+			makeErrorResponse(errCodeInvalidParams, "invalid raw transaction: encoding/hex: odd length hex string"),
 		},
 		{
 			"invalid params type",
@@ -186,7 +183,7 @@ func Test_injectTransactionHandler(t *testing.T) {
 					ID:      "1",
 					Jsonrpc: jsonRPC,
 					Method:  "inject_transaction",
-					Params:  []byte("abcdefghijk"),
+					Params:  []byte("abcdeffedca"),
 				},
 			},
 			makeErrorResponse(errCodeInvalidParams, errMsgInvalidParams),
@@ -214,7 +211,7 @@ func Test_injectTransactionHandler(t *testing.T) {
 				},
 				gateway: &fakeGateway{},
 			},
-			makeErrorResponse(errCodeInternalError, "inject transaction failed:fake gateway inject transaction failed"),
+			makeErrorResponse(errCodeInternalError, "inject transaction failed: fake gateway inject transaction failed"),
 		},
 	}
 

@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/spolabs/spo/src/util/file"
-	"github.com/spolabs/spo/src/util/utc"
+	"github.com/spo-next/spo/src/util/file"
+	"github.com/spo-next/spo/src/util/utc"
 )
 
 func TestValidateAddress(t *testing.T) {

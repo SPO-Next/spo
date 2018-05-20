@@ -13,9 +13,9 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/testutil"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/testutil"
 )
 
 type spending struct {
@@ -270,7 +270,13 @@ func TestUnspentPoolGetArray(t *testing.T) {
 		{
 			"get not exist",
 			[]cipher.SHA256{outsideUx.Hash()},
-			fmt.Errorf("unspent output of %s does not exist", outsideUx.Hash().Hex()),
+			NewErrUnspentNotExist(outsideUx.Hash().Hex()),
+			coin.UxArray{},
+		},
+		{
+			"get not exist with others that exist",
+			[]cipher.SHA256{uxs[1].Hash(), outsideUx.Hash(), uxs[0].Hash()},
+			NewErrUnspentNotExist(outsideUx.Hash().Hex()),
 			coin.UxArray{},
 		},
 	}

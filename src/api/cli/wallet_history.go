@@ -8,13 +8,15 @@ import (
 
 	"sort"
 
-	"github.com/spolabs/spo/src/api/webrpc"
-	"github.com/spolabs/spo/src/util/droplet"
-	"github.com/spolabs/spo/src/wallet"
 	gcli "github.com/urfave/cli"
+
+	"github.com/spo-next/spo/src/api/webrpc"
+	"github.com/spo-next/spo/src/util/droplet"
+	"github.com/spo-next/spo/src/wallet"
 )
 
-type addrHistory struct {
+// AddrHistory represents a transactional event for an address
+type AddrHistory struct {
 	BlockSeq  uint64    `json:"-"`
 	Txid      string    `json:"txid"`
 	Address   string    `json:"address"`
@@ -22,10 +24,10 @@ type addrHistory struct {
 	Timestamp time.Time `json:"timestamp"`
 	Status    int       `json:"status"`
 
-	coins uint64 `json:"-"`
+	coins uint64
 }
 
-type byTime []addrHistory
+type byTime []AddrHistory
 
 func (obt byTime) Less(i, j int) bool {
 	return obt[i].Timestamp.Unix() < obt[j].Timestamp.Unix()
@@ -58,7 +60,7 @@ func walletHisCmd() gcli.Command {
 
 func walletHistoryAction(c *gcli.Context) error {
 	cfg := ConfigFromContext(c)
-	rpcClient := RpcClientFromContext(c)
+	rpcClient := RPCClientFromContext(c)
 
 	if c.NArg() > 0 {
 		fmt.Printf("Error: invalid argument\n\n")
@@ -88,7 +90,7 @@ func walletHistoryAction(c *gcli.Context) error {
 	}
 
 	// transmute the uxout to addrHistory, and sort the items by time in ascend order.
-	totalAddrHis := []addrHistory{}
+	totalAddrHis := []AddrHistory{}
 	for _, ux := range uxouts {
 		addrHis, err := makeAddrHisArray(rpcClient, ux)
 		if err != nil {
@@ -100,15 +102,15 @@ func walletHistoryAction(c *gcli.Context) error {
 	sort.Sort(byTime(totalAddrHis))
 
 	// print the addr history
-	return printJson(totalAddrHis)
+	return printJSON(totalAddrHis)
 }
 
-func makeAddrHisArray(c *webrpc.Client, ux webrpc.AddrUxoutResult) ([]addrHistory, error) {
+func makeAddrHisArray(c *webrpc.Client, ux webrpc.AddrUxoutResult) ([]AddrHistory, error) {
 	if len(ux.UxOuts) == 0 {
 		return nil, nil
 	}
 
-	var addrHis, spentHis, realHis []addrHistory
+	var addrHis, spentHis, realHis []AddrHistory
 	var spentBlkSeqMap = map[uint64]bool{}
 
 	for _, u := range ux.UxOuts {
@@ -117,7 +119,7 @@ func makeAddrHisArray(c *webrpc.Client, ux webrpc.AddrUxoutResult) ([]addrHistor
 			return nil, err
 		}
 
-		addrHis = append(addrHis, addrHistory{
+		addrHis = append(addrHis, AddrHistory{
 			BlockSeq:  u.SrcBkSeq,
 			Txid:      u.SrcTx,
 			Address:   ux.Address,
@@ -130,7 +132,7 @@ func makeAddrHisArray(c *webrpc.Client, ux webrpc.AddrUxoutResult) ([]addrHistor
 		// the SpentBlockSeq will be 0 if the uxout has not been spent yet.
 		if u.SpentBlockSeq != 0 {
 			spentBlkSeqMap[u.SpentBlockSeq] = true
-			spentHis = append(spentHis, addrHistory{
+			spentHis = append(spentHis, AddrHistory{
 				BlockSeq: u.SpentBlockSeq,
 				Address:  ux.Address,
 				Txid:     u.SpentTxID,
@@ -158,8 +160,8 @@ func makeAddrHisArray(c *webrpc.Client, ux webrpc.AddrUxoutResult) ([]addrHistor
 	}
 
 	type historyRecord struct {
-		received []addrHistory
-		spent    []addrHistory
+		received []AddrHistory
+		spent    []AddrHistory
 	}
 
 	// merge history in the same transaction.
@@ -201,14 +203,14 @@ func makeAddrHisArray(c *webrpc.Client, ux webrpc.AddrUxoutResult) ([]addrHistor
 			amount = "-" + amount
 		}
 
-		var his addrHistory
+		var his AddrHistory
 		if len(hs.received) > 0 {
 			his = hs.received[0]
 		} else {
 			his = hs.spent[0]
 		}
 
-		realHis = append(realHis, addrHistory{
+		realHis = append(realHis, AddrHistory{
 			BlockSeq:  his.BlockSeq,
 			Txid:      txid,
 			Address:   ux.Address,

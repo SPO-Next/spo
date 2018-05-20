@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/spolabs/spo/src/util/utc"
+	"github.com/spo-next/spo/src/util/utc"
 )
 
 func TestGenerateCert(t *testing.T) {

@@ -2,16 +2,16 @@ package webrpc
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/testutil"
-	"github.com/spolabs/spo/src/visor"
 	"github.com/stretchr/testify/require"
+
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/testutil"
+	"github.com/spo-next/spo/src/visor"
 )
 
 const outputStr = `{
@@ -135,7 +135,6 @@ func Test_getOutputsHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			params, err := json.Marshal(tt.args.addrs)
-			fmt.Println("param:", string(params))
 			require.NoError(t, err)
 			req := Request{
 				ID:      "1",

@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/spolabs/spo/src/wallet"
+	"github.com/spo-next/spo/src/wallet"
 
 	gcli "github.com/urfave/cli"
 )
@@ -36,7 +36,7 @@ func listAddresses(c *gcli.Context) error {
 
 	addrs := wlt.GetAddresses()
 
-	s, err := FormatAddressesAsJson(addrs)
+	s, err := FormatAddressesAsJSON(addrs)
 	if err != nil {
 		return err
 	}

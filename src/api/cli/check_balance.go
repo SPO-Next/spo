@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/spolabs/spo/src/api/webrpc"
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/util/droplet"
-	"github.com/spolabs/spo/src/wallet"
 	gcli "github.com/urfave/cli"
+
+	"github.com/spo-next/spo/src/api/webrpc"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/util/droplet"
+	"github.com/spo-next/spo/src/wallet"
 )
 
 // Balance represents an coin and hours balance
@@ -64,7 +65,7 @@ func addressBalanceCmd() gcli.Command {
 
 func checkWltBalance(c *gcli.Context) error {
 	cfg := ConfigFromContext(c)
-	rpcClient := RpcClientFromContext(c)
+	rpcClient := RPCClientFromContext(c)
 
 	var w string
 	if c.NArg() > 0 {
@@ -82,11 +83,11 @@ func checkWltBalance(c *gcli.Context) error {
 		return err
 	}
 
-	return printJson(balRlt)
+	return printJSON(balRlt)
 }
 
 func addrBalance(c *gcli.Context) error {
-	rpcClient := RpcClientFromContext(c)
+	rpcClient := RPCClientFromContext(c)
 
 	addrs := make([]string, c.NArg())
 	var err error
@@ -102,7 +103,7 @@ func addrBalance(c *gcli.Context) error {
 		return err
 	}
 
-	return printJson(balRlt)
+	return printJSON(balRlt)
 }
 
 // PUBLIC
@@ -156,7 +157,7 @@ func getBalanceOfAddresses(outs *webrpc.OutputsResult, addrs []string) (*Balance
 
 		b := addrBalances[o.Address]
 		b.confirmed.Coins += amt
-		b.confirmed.Hours += o.Hours
+		b.confirmed.Hours += o.CalculatedHours
 
 		addrBalances[o.Address] = b
 	}
@@ -174,7 +175,7 @@ func getBalanceOfAddresses(outs *webrpc.OutputsResult, addrs []string) (*Balance
 
 		b := addrBalances[o.Address]
 		b.spendable.Coins += amt
-		b.spendable.Hours += o.Hours
+		b.spendable.Hours += o.CalculatedHours
 
 		addrBalances[o.Address] = b
 	}
@@ -192,7 +193,7 @@ func getBalanceOfAddresses(outs *webrpc.OutputsResult, addrs []string) (*Balance
 
 		b := addrBalances[o.Address]
 		b.expected.Coins += amt
-		b.expected.Hours += o.Hours
+		b.expected.Hours += o.CalculatedHours
 
 		addrBalances[o.Address] = b
 	}
@@ -220,9 +221,20 @@ func getBalanceOfAddresses(outs *webrpc.OutputsResult, addrs []string) (*Balance
 
 		balRlt.Addresses[i].Address = a
 
-		totalConfirmed = totalConfirmed.Add(b.confirmed)
-		totalSpendable = totalSpendable.Add(b.spendable)
-		totalExpected = totalExpected.Add(b.expected)
+		totalConfirmed, err = totalConfirmed.Add(b.confirmed)
+		if err != nil {
+			return nil, err
+		}
+
+		totalSpendable, err = totalSpendable.Add(b.spendable)
+		if err != nil {
+			return nil, err
+		}
+
+		totalExpected, err = totalExpected.Add(b.expected)
+		if err != nil {
+			return nil, err
+		}
 
 		balRlt.Addresses[i].Confirmed, err = toBalance(b.confirmed)
 		if err != nil {

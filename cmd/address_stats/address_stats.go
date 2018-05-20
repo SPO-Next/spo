@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/spolabs/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher"
 )
 
 func zeroPadding(countLen int, value string) string {

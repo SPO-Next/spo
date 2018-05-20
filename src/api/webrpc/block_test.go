@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/spolabs/spo/src/visor"
 	"github.com/stretchr/testify/require"
+
+	"github.com/spo-next/spo/src/visor"
 )
 
 var blockString = `{

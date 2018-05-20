@@ -8,19 +8,15 @@ package historydb
 import (
 	"github.com/boltdb/bolt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/encoder"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/visor/bucket"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/encoder"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/visor/bucket"
 )
-
-// lastTxNum reprsents the number of transactions that the GetLastTxs function will return.
-const lastTxNum = 20
 
 // Transactions transaction bucket instance.
 type transactions struct {
-	bkt     *bucket.Bucket
-	lastTxs []cipher.SHA256 // records the latest transactions
+	bkt *bucket.Bucket
 }
 
 // Transaction contains transaction info and the seq of block which executed this block.
@@ -51,11 +47,6 @@ func addTransaction(b *bolt.Bucket, tx *Transaction) error {
 
 // Add transaction to the db.
 func (txs *transactions) Add(t *Transaction) error {
-	txs.lastTxs = append(txs.lastTxs, t.Hash())
-	if len(txs.lastTxs) > lastTxNum {
-		txs.lastTxs = txs.lastTxs[1:]
-	}
-
 	key := t.Hash()
 	v := encoder.Serialize(t)
 	return txs.bkt.Put(key[:], v)
@@ -105,16 +96,4 @@ func (txs *transactions) IsEmpty() bool {
 // Reset resets the bucket
 func (txs *transactions) Reset() error {
 	return txs.bkt.Reset()
-}
-
-// GetLastTxs get latest tx hash set.
-func (txs *transactions) GetLastTxs() []cipher.SHA256 {
-	return txs.lastTxs
-}
-
-func (txs *transactions) updateLastTxs(hash cipher.SHA256) {
-	txs.lastTxs = append(txs.lastTxs, hash)
-	if len(txs.lastTxs) > lastTxNum {
-		txs.lastTxs = txs.lastTxs[1:]
-	}
 }

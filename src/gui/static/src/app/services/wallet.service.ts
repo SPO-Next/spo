@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subject } from 'rxjs/Subject';
-import { WalletModel } from '../models/wallet.model';
 import { Observable } from 'rxjs/Observable';
 import { IntervalObservable } from 'rxjs/observable/IntervalObservable';
 import 'rxjs/add/observable/forkJoin';
@@ -11,48 +9,54 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/mergeMap';
+import { Address, Wallet } from '../app.datatypes';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 
 @Injectable()
 export class WalletService {
-
-  recentTransactions: Subject<any[]> = new BehaviorSubject<any[]>([]);
-  transactions: Subject<any[]> = new BehaviorSubject<any[]>([]);
-  wallets: Subject<WalletModel[]> = new BehaviorSubject<WalletModel[]>([]);
+  addresses: Address[];
+  wallets: Subject<Wallet[]> = new ReplaySubject<Wallet[]>();
+  pendingTxs: Subject<any[]> = new ReplaySubject<any[]>();
 
   constructor(
     private apiService: ApiService
   ) {
     this.loadData();
+
     IntervalObservable
       .create(30000)
       .subscribe(() => this.refreshBalances());
+
+    IntervalObservable.create(10000)
+      .subscribe(() => this.refreshPendingTransactions());
   }
 
   addressesAsString(): Observable<string> {
-    return this.all().map(wallets => wallets.map(wallet => {
-      return wallet.entries.reduce((a, b) => {
-        a.push(b.address);
-        return a;
-      }, []).join(',');
-    }).join(','));
+    return this.allAddresses().map(addrs => addrs.map(addr => addr.address)).map(addrs => addrs.join(','));
   }
 
-  addAddress(wallet: WalletModel) {
-    return this.apiService.post('wallet/newAddress', {id: wallet.meta.filename})
-      .map(response => ({ address: response.addresses[0], balance: 0 }));
+  addAddress(wallet: Wallet, password?: string) {
+    return this.apiService.postWalletNewAddress(wallet, password)
+      .do(address => {
+        wallet.addresses.push(address);
+        this.refreshBalances();
+      });
   }
 
-  all(): Observable<WalletModel[]> {
+  all(): Observable<Wallet[]> {
     return this.wallets.asObservable();
   }
 
   allAddresses(): Observable<any[]> {
-    return this.all().map(wallets => wallets.reduce((array, wallet) => array.concat(wallet.entries), []));
+    return this.all().map(wallets => wallets.reduce((array, wallet) => array.concat(wallet.addresses), []));
   }
 
-  create(label, seed) {
-    return this.apiService.post('wallet/create', {label: label ? label : 'undefined', seed: seed})
+  create(label, seed, scan, password) {
+    seed = seed.replace(/\r?\n|\r/g, ' ').replace(/ +/g, ' ').trim();
+
+    return this.apiService.postWalletCreate(label ? label : 'undefined', seed, scan ? scan : 100, password)
       .do(wallet => {
+        console.log(wallet);
         this.wallets.first().subscribe(wallets => {
           wallets.push(wallet);
           this.wallets.next(wallets);
@@ -61,16 +65,16 @@ export class WalletService {
       });
   }
 
+  find(filename: string): Observable<Wallet> {
+    return this.all().map(wallets => wallets.find(wallet => wallet.filename === filename));
+  }
+
   folder(): Observable<string> {
     return this.apiService.get('wallets/folderName').map(response => response.address);
   }
 
   generateSeed(): Observable<string> {
-    return this.apiService.get('wallet/newSeed').map(response => response.seed);
-  }
-
-  history(): Observable<any[]> {
-    return this.transactions.asObservable();
+    return this.apiService.getWalletNewSeed();
   }
 
   outputs(): Observable<any> {
@@ -79,19 +83,38 @@ export class WalletService {
       .flatMap(addresses => this.apiService.get('outputs', {addrs: addresses}));
   }
 
-  pendingTransactions(): Observable<any> {
+  allPendingTransactions(): Observable<any> {
     return this.apiService.get('pendingTxs');
   }
 
-  recent(): Observable<any[]> {
-    return this.recentTransactions.asObservable();
+  pendingTransactions(): Observable<any> {
+    return this.pendingTxs.asObservable();
+  }
+
+  refreshPendingTransactions() {
+    this.wallets.first().subscribe(wallets => {
+      Observable.forkJoin(wallets.map(wallet => this.apiService.get('wallet/transactions', { id: wallet.filename })))
+        .subscribe(pending => {
+          this.pendingTxs.next([].concat.apply(
+            [],
+            pending
+              .filter(response => response.transactions.length > 0)
+              .map(response => response.transactions)
+          ).reduce((txs, tx) => {
+            if (!txs.find(t => t.transaction.txid === tx.transaction.txid)) {
+              txs.push(tx);
+            }
+            return txs;
+          }, []));
+        });
+    });
   }
 
   refreshBalances() {
     this.wallets.first().subscribe(wallets => {
       Observable.forkJoin(wallets.map(wallet => this.retrieveWalletBalance(wallet).map(response => {
-        wallet.entries = response;
-        wallet.balance = response.map(address => address.balance >= 0 ? address.balance : 0).reduce((a , b) => a + b, 0);
+        wallet.addresses = response;
+        wallet.coins = response.map(address => address.coins >= 0 ? address.coins : 0).reduce((a , b) => a + b, 0);
         wallet.hours = response.map(address => address.hours >= 0 ? address.hours : 0).reduce((a , b) => a + b, 0);
         return wallet;
       })))
@@ -99,31 +122,32 @@ export class WalletService {
     });
   }
 
-  renameWallet(wallet: WalletModel, label: string): Observable<WalletModel> {
-    return this.apiService.post('wallet/update', { id: wallet.meta.filename, label: label });
-  }
-
-  retrieveUpdatedTransactions(transactions) {
-    return Observable.forkJoin((transactions.map(transaction => {
-      return this.apiService.get('transaction', { txid: transaction.id }).map(response => {
-        response.amount = transaction.amount;
-        response.address = transaction.address;
-        return response;
+  renameWallet(wallet: Wallet, label: string): Observable<Wallet> {
+    return this.apiService.post('wallet/update', { id: wallet.filename, label: label })
+      .do(() => {
+        wallet.label = label;
+        this.updateWallet(wallet);
       });
-    })));
   }
 
-  sendSkycoin(wallet_id: string, address: string, amount: number) {
-    return this.apiService.post('wallet/spend', {id: wallet_id, dst: address, coins: amount})
-      .do(output => this.recentTransactions.first().subscribe(transactions => {
-        const transaction = {id: output.txn.txid, address: address, amount: amount / 1000000};
-        transactions.push(transaction);
-        this.recentTransactions.next(transactions);
-      }));
+  toggleEncryption(wallet: Wallet, password: string): Observable<Wallet> {
+    return this.apiService.postWalletToggleEncryption(wallet, password)
+      .do(w => {
+        wallet.encrypted = w.meta.encrypted;
+        this.updateWallet(w);
+      });
+  }
+
+  getWalletSeed(wallet: Wallet, password: string): Observable<string> {
+    return this.apiService.getWalletSeed(wallet, password);
+  }
+
+  sendSkycoin(wallet: Wallet, address: string, amount: number, password: string|null) {
+    return this.apiService.post('wallet/spend', {id: wallet.filename, dst: address, coins: amount, password});
   }
 
   sum(): Observable<number> {
-    return this.all().map(wallets => wallets.map(wallet => wallet.balance >= 0 ? wallet.balance : 0).reduce((a , b) => a + b, 0));
+    return this.all().map(wallets => wallets.map(wallet => wallet.coins >= 0 ? wallet.coins : 0).reduce((a , b) => a + b, 0));
   }
 
   transaction(txid: string): Observable<any> {
@@ -140,60 +164,65 @@ export class WalletService {
     });
   }
 
+  transactions(): Observable<any[]> {
+    return this.allAddresses().filter(addresses => !!addresses.length).first().flatMap(addresses => {
+      this.addresses = addresses;
+      return Observable.forkJoin(addresses.map(address => this.apiService.getExplorerAddress(address)));
+    }).map(transactions => [].concat.apply([], transactions).sort((a, b) =>  b.timestamp - a.timestamp))
+      .map(transactions => transactions.reduce((array, item) => {
+        if (!array.find(trans => trans.txid === item.txid)) {
+          array.push(item);
+        }
+        return array;
+      }, []))
+      .map(transactions => transactions.map(transaction => {
+        const outgoing = !!this.addresses.find(address => transaction.inputs[0].owner === address.address);
+        transaction.outputs.forEach(output => {
+          if (outgoing && !this.addresses.find(address => output.dst === address.address)) {
+            transaction.addresses.push(output.dst);
+            transaction.balance = transaction.balance - parseFloat(output.coins);
+          }
+          if (!outgoing && this.addresses.find(address => output.dst === address.address)) {
+            transaction.addresses.push(output.dst);
+            transaction.balance = transaction.balance + parseFloat(output.coins);
+          }
+          return transaction;
+        });
+
+        return transaction;
+      }));
+  }
+
   private loadData(): void {
-    this.retrieveWallets().first().subscribe(wallets => {
+    this.apiService.getWallets().first().subscribe(wallets => {
       this.wallets.next(wallets);
       this.refreshBalances();
-      // this.retrieveHistory();
-      this.retrieveTransactions();
+      this.refreshPendingTransactions();
     });
   }
 
   private retrieveAddressBalance(address: any|any[]) {
-    const addresses = Array.isArray(address) ? address.map(address => address.address).join(',') : address.address;
+    const addresses = Array.isArray(address) ? address.map(addr => addr.address).join(',') : address.address;
     return this.apiService.get('balance', {addrs: addresses});
-  }
-
-  private retrieveAddressTransactions(address: any) {
-    return this.apiService.get('explorer/address', {address: address.address});
   }
 
   private retrieveInputAddress(input: string) {
     return this.apiService.get('uxout', {uxid: input});
   }
 
-  private retrieveTransactions() {
-    return this.wallets.first().subscribe(wallets => {
-      Observable.forkJoin(wallets.map(wallet => this.retrieveWalletTransactions(wallet)))
-        .map(transactions => [].concat.apply([], transactions).sort((a, b) =>  b.timestamp - a.timestamp))
-        .map(transactions => transactions.reduce((array, item) => {
-          if (!array.find(trans => trans.txid === item.txid)) {
-            array.push(item);
-          }
-          return array;
-        }, []))
-        .subscribe(transactions => this.transactions.next(transactions));
-    });
-  }
-
-  private retrieveWalletBalance(wallet: WalletModel): Observable<any> {
-    return Observable.forkJoin(wallet.entries.map(address => this.retrieveAddressBalance(address).map(balance => {
-      address.balance = balance.confirmed.coins;
+  private retrieveWalletBalance(wallet: Wallet): Observable<any> {
+    return Observable.forkJoin(wallet.addresses.map(address => this.retrieveAddressBalance(address).map(balance => {
+      address.coins = balance.confirmed.coins / 1000000;
       address.hours = balance.confirmed.hours;
       return address;
     })));
   }
 
-  private retrieveWalletTransactions(wallet: WalletModel) {
-    return Observable.forkJoin(wallet.entries.map(address => this.retrieveAddressTransactions(address)))
-      .map(addresses => [].concat.apply([], addresses));
-  }
-
-  private retrieveWalletUnconfirmedTransactions(wallet: WalletModel) {
-    return this.apiService.get('wallet/transactions', {id: wallet.meta.filename});
-  }
-
-  private retrieveWallets(): Observable<WalletModel[]> {
-    return this.apiService.get('wallets');
+  private updateWallet(wallet: Wallet) {
+    this.wallets.first().subscribe(wallets => {
+      const index = wallets.findIndex(w => w.filename === wallet.filename);
+      wallets[index] = wallet;
+      this.wallets.next(wallets);
+    });
   }
 }

@@ -4,8 +4,9 @@ import (
 	"errors"
 	"math"
 
-	logging "github.com/op/go-logging"
 	"github.com/shopspring/decimal"
+
+	logging "github.com/spo-next/spo/src/util/logging"
 )
 
 const (
@@ -37,7 +38,7 @@ func init() {
 	maxDecimal = max
 }
 
-// FromString converts a spo balance string with decimal places to uint64 droplets.
+// FromString converts a skycoin balance string with decimal places to uint64 droplets.
 // For example, "123.000456" becomes 123000456
 func FromString(b string) (uint64, error) {
 	d, err := decimal.NewFromString(b)
@@ -50,7 +51,7 @@ func FromString(b string) (uint64, error) {
 		return 0, ErrNegativeValue
 	}
 
-	// spo have a maximum of 6 decimal places
+	// Skycoins have a maximum of 6 decimal places
 	if d.Exponent() < -Exponent {
 		return 0, ErrTooManyDecimals
 	}
@@ -61,7 +62,7 @@ func FromString(b string) (uint64, error) {
 	// Check that there are no decimal places remaining. This error should not
 	// occur, because of the earlier check of Exponent()
 	if e.Exponent() < 0 {
-		logger.Critical("Balance still has decimals after converting to droplets: %s", b)
+		logger.Critical().Errorf("Balance still has decimals after converting to droplets: %s", b)
 		return 0, ErrTooManyDecimals
 	}
 
@@ -74,7 +75,7 @@ func FromString(b string) (uint64, error) {
 	return uint64(e.IntPart()), nil
 }
 
-// ToString converts droplets to a spo balance fixed-point decimal string.
+// ToString converts droplets to a skycoin balance fixed-point decimal string.
 // String will always have a decimal precision of droplet.Exponent (6).
 // For example, 123000456 becomes "123.000456" and
 // 123000000 becomes "123.000000".

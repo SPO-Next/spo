@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/daemon"
-	"github.com/spolabs/spo/src/visor"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/daemon"
+	"github.com/spo-next/spo/src/visor"
 )
 
 // OutputsResult the output json format
@@ -37,9 +37,9 @@ func getOutputsHandler(req Request, gateway Gatewayer) Response {
 
 	outs, err := gateway.GetUnspentOutputs(daemon.FbyAddresses(addrs))
 	if err != nil {
-		logger.Error("get unspent outputs failed: %v", err)
-		return makeErrorResponse(errCodeInternalError)
+		logger.Errorf("get unspent outputs failed: %v", err)
+		return makeErrorResponse(errCodeInternalError, fmt.Sprintf("gateway.GetUnspentOutputs failed: %v", err))
 	}
 
-	return makeSuccessResponse(req.ID, OutputsResult{outs})
+	return makeSuccessResponse(req.ID, OutputsResult{*outs})
 }

@@ -7,8 +7,10 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/spolabs/spo/src/cipher/ripemd160"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/spo-next/spo/src/cipher/ripemd160"
 )
 
 func freshSumRipemd160(b []byte) Ripemd160 {
@@ -205,6 +207,16 @@ func TestXorSHA256(t *testing.T) {
 	assert.NotEqual(t, h.Xor(i), i)
 	assert.NotEqual(t, h.Xor(i), SHA256{})
 	assert.Equal(t, h.Xor(i), i.Xor(h))
+}
+
+func TestSHA256Null(t *testing.T) {
+	var x SHA256
+	require.True(t, x.Null())
+
+	b := randBytes(t, 128)
+	x = SumSHA256(b)
+
+	require.False(t, x.Null())
 }
 
 func TestNextPowerOfTwo(t *testing.T) {

@@ -1,3 +1,8 @@
+/*
+* CODE GENERATED AUTOMATICALLY WITH github.com/ernesto-jimenez/goautomock
+* THIS FILE MUST NEVER BE EDITED MANUALLY
+ */
+
 package webrpc
 
 import (
@@ -5,11 +10,11 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
-	cipher "github.com/spolabs/spo/src/cipher"
-	coin "github.com/spolabs/spo/src/coin"
-	daemon "github.com/spolabs/spo/src/daemon"
-	visor "github.com/spolabs/spo/src/visor"
-	historydb "github.com/spolabs/spo/src/visor/historydb"
+	cipher "github.com/spo-next/spo/src/cipher"
+	coin "github.com/spo-next/spo/src/coin"
+	daemon "github.com/spo-next/spo/src/daemon"
+	visor "github.com/spo-next/spo/src/visor"
+	historydb "github.com/spo-next/spo/src/visor/historydb"
 )
 
 // GatewayerMock mock
@@ -22,14 +27,14 @@ func NewGatewayerMock() *GatewayerMock {
 }
 
 // GetAddrUxOuts mocked method
-func (m *GatewayerMock) GetAddrUxOuts(p0 cipher.Address) ([]*historydb.UxOutJSON, error) {
+func (m *GatewayerMock) GetAddrUxOuts(p0 []cipher.Address) ([]*historydb.UxOut, error) {
 
 	ret := m.Called(p0)
 
-	var r0 []*historydb.UxOutJSON
+	var r0 []*historydb.UxOut
 	switch res := ret.Get(0).(type) {
 	case nil:
-	case []*historydb.UxOutJSON:
+	case []*historydb.UxOut:
 		r0 = res
 	default:
 		panic(fmt.Sprintf("unexpected type: %v", res))
@@ -175,14 +180,14 @@ func (m *GatewayerMock) GetTransaction(p0 cipher.SHA256) (*visor.Transaction, er
 }
 
 // GetUnspentOutputs mocked method
-func (m *GatewayerMock) GetUnspentOutputs(p0 ...daemon.OutputsFilter) (visor.ReadableOutputSet, error) {
+func (m *GatewayerMock) GetUnspentOutputs(p0 ...daemon.OutputsFilter) (*visor.ReadableOutputSet, error) {
 
 	ret := m.Called(p0)
 
-	var r0 visor.ReadableOutputSet
+	var r0 *visor.ReadableOutputSet
 	switch res := ret.Get(0).(type) {
 	case nil:
-	case visor.ReadableOutputSet:
+	case *visor.ReadableOutputSet:
 		r0 = res
 	default:
 		panic(fmt.Sprintf("unexpected type: %v", res))
@@ -201,8 +206,8 @@ func (m *GatewayerMock) GetUnspentOutputs(p0 ...daemon.OutputsFilter) (visor.Rea
 
 }
 
-// InjectTransaction mocked method
-func (m *GatewayerMock) InjectTransaction(p0 coin.Transaction) error {
+// InjectBroadcastTransaction mocked method
+func (m *GatewayerMock) InjectBroadcastTransaction(p0 coin.Transaction) error {
 
 	ret := m.Called(p0)
 

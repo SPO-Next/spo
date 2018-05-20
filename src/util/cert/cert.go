@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Modifications Copyright 2014 Spo authors.
+// Modifications Copyright 2014 Skycoin authors.
 
 package cert
 
@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spolabs/spo/src/util/logging"
-	"github.com/spolabs/spo/src/util/utc"
+	"github.com/spo-next/spo/src/util/logging"
+	"github.com/spo-next/spo/src/util/utc"
 )
 
 var logger = logging.MustGetLogger("util")
@@ -117,7 +117,6 @@ func certKeyXor(certFile, keyFile string) (bool, error) {
 		return false, fmt.Errorf("Key %s is not a file", keyFile)
 	default:
 		panic("unreachable code")
-		return false, fmt.Errorf("unreachable code")
 	}
 }
 
@@ -135,14 +134,14 @@ func CreateCertIfNotExists(host, certFile, keyFile string, appName string) error
 	}
 
 	// Automatically create a new cert if neither files exist
-	logger.Info("Creating certificate %s", certFile)
-	logger.Info("Creating key %s", keyFile)
+	logger.Infof("Creating certificate %s", certFile)
+	logger.Infof("Creating key %s", keyFile)
 	lifetime := time.Hour * 365 * 24 // 1 year
 	if err := GenerateCert(certFile, keyFile, host, appName, 2048, false, utc.Now(), lifetime); err != nil {
 		return err
 	}
 
-	logger.Info("Created certificate %s for host %s", certFile, host)
-	logger.Info("Created key %s for host %s", keyFile, host)
+	logger.Infof("Created certificate %s for host %s", certFile, host)
+	logger.Infof("Created key %s for host %s", keyFile, host)
 	return nil
 }

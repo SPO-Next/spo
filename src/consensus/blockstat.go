@@ -1,3 +1,4 @@
+// nolint
 // 20160901 - Initial version by user johnstuartmill,
 // public key 02fb4acf944c84d48341e3c1cb14d707034a68b7f931d6be6d732bec03597d6ff6
 // 20161025 - Code revision by user johnstuartmill.
@@ -8,8 +9,8 @@ import (
 	"container/heap"
 	"fmt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/secp256k1-go"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/secp256k1-go"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +120,6 @@ type BlockStat struct {
 	//
 	// END debugging/diagnostics
 	//
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -290,10 +290,10 @@ func (self *BlockStat) try_add_hash_and_sig(
 	self.debug_count += 1
 	self.debug_usage += 1
 
-	if !(action_update || action_skip || action_insert) {
-		panic("Inconsistent BlockStat::try_add_hash_and_sig()")
-		return -1
-	}
+	//if !(action_update || action_skip || action_insert) {
+	//	panic("Inconsistent BlockStat::try_add_hash_and_sig()")
+	//	return -1
+	//}
 
 	if action_update || action_insert {
 		return 0
@@ -571,10 +571,10 @@ func (self *BlockStatQueue) try_append_to_BlockStatQueue(
 	}
 	n = -1 // guard
 
-	if !(action_update || action_skip || action_insert) {
-		panic("Inconsistent")
-		return -1
-	}
+	//if !(action_update || action_skip || action_insert) {
+	//	panic("Inconsistent")
+	//	return -1
+	//}
 
 	var status_code int = 1
 

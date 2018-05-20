@@ -1,21 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { WalletService } from '../../../../services/wallet.service';
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
+import { ButtonComponent } from '../../../layout/button/button.component';
+import { MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'app-create-wallet',
   templateUrl: './create-wallet.component.html',
-  styleUrls: ['./create-wallet.component.css']
+  styleUrls: ['./create-wallet.component.scss']
 })
 export class CreateWalletComponent implements OnInit {
-
+  @ViewChild('createButton') createButton: ButtonComponent;
+  @ViewChild('cancelButton') cancelButton: ButtonComponent;
   form: FormGroup;
   seed: string;
+  scan: Number;
+  encrypt = true;
+  disableDismiss = false;
 
   constructor(
-    public dialogRef: MdDialogRef<CreateWalletComponent>,
-    private formBuilder: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data,
+    public dialogRef: MatDialogRef<CreateWalletComponent>,
     private walletService: WalletService,
   ) {}
 
@@ -23,22 +29,70 @@ export class CreateWalletComponent implements OnInit {
     this.initForm();
   }
 
+  closePopup() {
+    this.dialogRef.close();
+  }
+
   createWallet() {
-    this.walletService.create(this.form.value.label, this.form.value.seed)
-      .subscribe(() => this.dialogRef.close());
+    this.createButton.resetState();
+    this.createButton.setLoading();
+    this.cancelButton.setDisabled();
+    this.disableDismiss = true;
+
+    const password = this.encrypt ? this.form.value.password : null;
+    this.walletService.create(this.form.value.label, this.form.value.seed, this.scan, password)
+      .subscribe(() => this.dialogRef.close(), e => {
+        this.createButton.setError(e);
+        this.cancelButton.disabled = false;
+        this.disableDismiss = false;
+      });
   }
 
   generateSeed() {
-    this.walletService.generateSeed().subscribe(seed => this.form.controls.seed.setValue(seed));
+    this.walletService.generateSeed().subscribe(seed => this.form.get('seed').setValue(seed));
+  }
+
+  setEncrypt(event) {
+    this.encrypt = event.checked;
+    this.form.updateValueAndValidity();
   }
 
   private initForm() {
-    this.form = this.formBuilder.group({
-      label: ['', Validators.required],
-      seed: ['', Validators.required],
-    });
+    this.form = new FormGroup({}, [this.validatePasswords.bind(this), this.validateSeeds.bind(this)]);
+    this.form.addControl('label', new FormControl('', [Validators.required]));
+    this.form.addControl('seed', new FormControl('', [Validators.required]));
+    this.form.addControl('confirm_seed', new FormControl());
+    this.form.addControl('password', new FormControl());
+    this.form.addControl('confirm_password', new FormControl());
 
-    this.generateSeed();
+    if (this.data.create) {
+      this.generateSeed();
+    }
+
+    this.scan = 100;
   }
 
+  private validateSeeds() {
+    if (this.data.create && this.form && this.form.get('seed') && this.form.get('confirm_seed')) {
+      if (this.form.get('seed').value !== this.form.get('confirm_seed').value) {
+        return { NotEqual: true };
+      }
+    }
+
+    return null;
+  }
+
+  private validatePasswords() {
+    if (this.encrypt && this.form && this.form.get('password') && this.form.get('confirm_password')) {
+      if (this.form.get('password').value) {
+        if (this.form.get('password').value !== this.form.get('confirm_password').value) {
+          return { NotEqual: true };
+        }
+      } else {
+        return { Required: true };
+      }
+    }
+
+    return null;
+  }
 }

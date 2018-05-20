@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spolabs/spo/src/util/droplet"
+	"github.com/spo-next/spo/src/util/droplet"
 )
 
 // RichlistBalance holds info an address balance holder
@@ -15,7 +15,7 @@ type RichlistBalance struct {
 	coins   uint64
 }
 
-// Richlist sorts address balances
+// Richlist contains RichlistBalances
 type Richlist []RichlistBalance
 
 // NewRichlist create Richlist via unspent outputs map

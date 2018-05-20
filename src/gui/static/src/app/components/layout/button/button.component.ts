@@ -1,17 +1,25 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { parseResponseMessage } from '../../../utils/index';
 
 @Component({
   selector: 'app-button',
   templateUrl: 'button.component.html',
-  styleUrls: ['button.component.css']
+  styleUrls: ['button.component.scss']
 })
 
 export class ButtonComponent {
-  @Input() form: any;
-  @Input() placeholder: string;
+  @Input() disabled: any;
+  @Input() forceEmitEvents = false;
+  @Output() action = new EventEmitter();
 
   error: string;
   state: number;
+
+  onClick() {
+    if (!this.disabled || this.forceEmitEvents) {
+      this.action.emit();
+    }
+  }
 
   setLoading() {
     this.state = 0;
@@ -23,11 +31,20 @@ export class ButtonComponent {
   }
 
   setError(error: any) {
-    this.error = error['_body'];
+    this.error = typeof error === 'string' ? error : parseResponseMessage(error['_body']);
     this.state = 2;
   }
 
-  disabled() {
-    return this.state === 0  || (!(this.form === undefined) && !(this.form && this.form.valid));
+  setDisabled() {
+    this.disabled = true;
+  }
+
+  isLoading() {
+    return this.state === 0;
+  }
+
+  resetState() {
+    this.state = null;
+    this.error = '';
   }
 }

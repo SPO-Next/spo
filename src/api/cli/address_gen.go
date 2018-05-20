@@ -5,16 +5,16 @@ import (
 
 	gcli "github.com/urfave/cli"
 
-	"github.com/spolabs/spo/src/cipher"
-	bip39 "github.com/spolabs/spo/src/cipher/go-bip39"
-	"github.com/spolabs/spo/src/wallet"
+	"github.com/spo-next/spo/src/cipher"
+	bip39 "github.com/spo-next/spo/src/cipher/go-bip39"
+	"github.com/spo-next/spo/src/wallet"
 )
 
 func addressGenCmd() gcli.Command {
 	name := "addressGen"
 	return gcli.Command{
 		Name:        name,
-		Usage:       "Generate spo or skycoin or bitcoin addresses",
+		Usage:       "Generate spo or bitcoin addresses",
 		Description: "",
 		Flags: []gcli.Flag{
 			gcli.IntFlag{
@@ -28,11 +28,7 @@ func addressGenCmd() gcli.Command {
 			},
 			gcli.BoolFlag{
 				Name:  "bitcoin,b",
-				Usage: "Output the addresses as bitcoin addresses instead of skycoin addresses",
-			},
-			gcli.BoolFlag{
-				Name:  "spo,p",
-				Usage: "Output the addresses as spo addresses instead of skycoin addresses",
+				Usage: "Output the addresses as bitcoin addresses instead of spo addresses",
 			},
 			gcli.BoolFlag{
 				Name:  "hex,x",
@@ -52,10 +48,8 @@ func addressGenCmd() gcli.Command {
 			var coinType wallet.CoinType
 			if c.Bool("bitcoin") {
 				coinType = wallet.CoinTypeBitcoin
-			} else if c.Bool("spo") {
-				coinType = wallet.CoinTypeSpo
 			} else {
-				coinType = wallet.CoinTypeSkycoin
+				coinType = wallet.CoinTypeSpo
 			}
 
 			seed := c.String("seed")
@@ -79,7 +73,7 @@ func addressGenCmd() gcli.Command {
 			}
 
 			if !c.Bool("only-addr") {
-				return printJson(w)
+				return printJSON(w)
 			}
 
 			for _, e := range w.Entries {

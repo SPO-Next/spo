@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/spolabs/spo/src/util/file"
+	"github.com/spo-next/spo/src/util/file"
 )
 
 func Example() {
@@ -45,7 +45,7 @@ func TestLoadConfig(t *testing.T) {
 
 		cfg, err := LoadConfig()
 		require.NoError(t, err)
-		require.Equal(t, cfg.RpcAddress, val)
+		require.Equal(t, cfg.RPCAddress, val)
 	})
 
 	t.Run("set WALLET_DIR", func(t *testing.T) {

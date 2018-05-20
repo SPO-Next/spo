@@ -6,8 +6,8 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/spolabs/spo/src/testutil"
-	"github.com/spolabs/spo/src/visor/bucket"
+	"github.com/spo-next/spo/src/testutil"
+	"github.com/spo-next/spo/src/visor/bucket"
 )
 
 func TestNewHistoryMeta(t *testing.T) {

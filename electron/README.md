@@ -13,7 +13,7 @@ gox (go cross compiler), node and npm.
 To install gox:
 
 ```sh
-go get github.com/mitchellh/gox
+go get github.com/gz-c/gox
 ```
 
 ### NPM
@@ -36,7 +36,7 @@ npm -v
 
 ## Make sure that the wallet dist is up to date
 
-Recompile the wallet frontend. See [Wallet GUI Development README](src/gui/static/README.md) for instructions.
+Recompile the wallet frontend. See [Wallet GUI Development README](../src/gui/static/README.md) for instructions.
 
 ## Use electron-builder to pack and create app installer
 

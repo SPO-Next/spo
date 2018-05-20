@@ -4,9 +4,9 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/visor"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/visor"
 )
 
 // TxnResult wraps the visor.TransactionResult
@@ -22,7 +22,7 @@ type TxIDJson struct {
 func getTransactionHandler(req Request, gateway Gatewayer) Response {
 	var txid []string
 	if err := req.DecodeParams(&txid); err != nil {
-		logger.Critical("decode params failed:%v", err)
+		logger.Critical().Errorf("decode params failed: %v", err)
 		return makeErrorResponse(errCodeInvalidParams, errMsgInvalidParams)
 	}
 
@@ -32,12 +32,12 @@ func getTransactionHandler(req Request, gateway Gatewayer) Response {
 
 	t, err := cipher.SHA256FromHex(txid[0])
 	if err != nil {
-		logger.Critical("decode txid err: %v", err)
+		logger.Critical().Errorf("decode txid err: %v", err)
 		return makeErrorResponse(errCodeInvalidParams, "invalid transaction hash")
 	}
 	txn, err := gateway.GetTransaction(t)
 	if err != nil {
-		logger.Debugf("%v", err)
+		logger.Debug(err)
 		return makeErrorResponse(errCodeInternalError, errMsgInternalError)
 	}
 
@@ -47,7 +47,7 @@ func getTransactionHandler(req Request, gateway Gatewayer) Response {
 
 	tx, err := visor.NewTransactionResult(txn)
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Error(err)
 		return makeErrorResponse(errCodeInternalError, errMsgInternalError)
 	}
 
@@ -57,7 +57,7 @@ func getTransactionHandler(req Request, gateway Gatewayer) Response {
 func injectTransactionHandler(req Request, gateway Gatewayer) Response {
 	var rawtx []string
 	if err := req.DecodeParams(&rawtx); err != nil {
-		logger.Critical("decode params failed:%v", err)
+		logger.Critical().Errorf("decode params failed: %v", err)
 		return makeErrorResponse(errCodeInvalidParams, errMsgInvalidParams)
 	}
 
@@ -67,7 +67,7 @@ func injectTransactionHandler(req Request, gateway Gatewayer) Response {
 
 	b, err := hex.DecodeString(rawtx[0])
 	if err != nil {
-		return makeErrorResponse(errCodeInvalidParams, fmt.Sprintf("invalid raw transaction:%v", err))
+		return makeErrorResponse(errCodeInvalidParams, fmt.Sprintf("invalid raw transaction: %v", err))
 	}
 
 	txn, err := coin.TransactionDeserialize(b)
@@ -75,8 +75,8 @@ func injectTransactionHandler(req Request, gateway Gatewayer) Response {
 		return makeErrorResponse(errCodeInvalidParams, fmt.Sprintf("%v", err))
 	}
 
-	if err := gateway.InjectTransaction(txn); err != nil {
-		return makeErrorResponse(errCodeInternalError, fmt.Sprintf("inject transaction failed:%v", err))
+	if err := gateway.InjectBroadcastTransaction(txn); err != nil {
+		return makeErrorResponse(errCodeInternalError, fmt.Sprintf("inject transaction failed: %v", err))
 	}
 
 	return makeSuccessResponse(req.ID, TxIDJson{txn.Hash().Hex()})

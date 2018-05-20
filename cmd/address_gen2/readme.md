@@ -8,7 +8,7 @@ This utility have several flags:
 -addrfile string
         command for changing addresses output file (default "addresses")
   -coin string
-        address output type: spo/btc (default "spo)
+        address output type: sky/btc (default "sky)
   -infofile string
         create file with date of generation, seed, coin, number of keys generated
   -n int

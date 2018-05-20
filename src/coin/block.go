@@ -3,10 +3,10 @@ package coin
 import (
 	"fmt"
 
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/encoder"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/encoder"
 
-	"github.com/spolabs/spo/src/util/logging"
+	"github.com/spo-next/spo/src/util/logging"
 )
 
 var logger = logging.MustGetLogger("coin")
@@ -46,6 +46,11 @@ type BlockBody struct {
 type SignedBlock struct {
 	Block
 	Sig cipher.Sig
+}
+
+// VerifySignature verifies that the block is signed by pubkey
+func (b SignedBlock) VerifySignature(pubkey cipher.PubKey) error {
+	return cipher.VerifySignature(pubkey, b.Sig, b.Block.HashHeader())
 }
 
 // NewBlock creates new block.

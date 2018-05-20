@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/spolabs/spo/src/cipher"
 	"github.com/stretchr/testify/require"
 
-	"github.com/spolabs/spo/src/testutil"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/testutil"
+
 	"github.com/stretchr/testify/assert"
 )
 

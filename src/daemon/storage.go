@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spolabs/spo/src/daemon/pex"
+	"github.com/spo-next/spo/src/daemon/pex"
 )
 
 // base storage struct

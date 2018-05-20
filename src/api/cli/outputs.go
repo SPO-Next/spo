@@ -3,10 +3,11 @@ package cli
 import (
 	"fmt"
 
-	"github.com/spolabs/spo/src/api/webrpc"
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/wallet"
 	gcli "github.com/urfave/cli"
+
+	"github.com/spo-next/spo/src/api/webrpc"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/wallet"
 )
 
 func walletOutputsCmd(cfg Config) gcli.Command {
@@ -41,7 +42,7 @@ func addressOutputsCmd() gcli.Command {
 
 func getWalletOutputsCmd(c *gcli.Context) error {
 	cfg := ConfigFromContext(c)
-	rpcClient := RpcClientFromContext(c)
+	rpcClient := RPCClientFromContext(c)
 
 	w := ""
 	if c.NArg() > 0 {
@@ -59,11 +60,11 @@ func getWalletOutputsCmd(c *gcli.Context) error {
 		return err
 	}
 
-	return printJson(outputs)
+	return printJSON(outputs)
 }
 
 func getAddressOutputsCmd(c *gcli.Context) error {
-	rpcClient := RpcClientFromContext(c)
+	rpcClient := RPCClientFromContext(c)
 
 	addrs := make([]string, c.NArg())
 	var err error
@@ -79,11 +80,12 @@ func getAddressOutputsCmd(c *gcli.Context) error {
 		return err
 	}
 
-	return printJson(outputs)
+	return printJSON(outputs)
 }
 
 // PUBLIC
 
+// GetWalletOutputsFromFile returns unspent outputs associated with all addresses in a wallet file
 func GetWalletOutputsFromFile(c *webrpc.Client, walletFile string) (*webrpc.OutputsResult, error) {
 	wlt, err := wallet.Load(walletFile)
 	if err != nil {
@@ -93,6 +95,7 @@ func GetWalletOutputsFromFile(c *webrpc.Client, walletFile string) (*webrpc.Outp
 	return GetWalletOutputs(c, wlt)
 }
 
+// GetWalletOutputs returns unspent outputs associated with all addresses in a wallet.Wallet
 func GetWalletOutputs(c *webrpc.Client, wlt *wallet.Wallet) (*webrpc.OutputsResult, error) {
 	cipherAddrs := wlt.GetAddresses()
 	addrs := make([]string, len(cipherAddrs))

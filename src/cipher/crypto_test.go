@@ -6,8 +6,9 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/spolabs/spo/src/cipher/ripemd160"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/spo-next/spo/src/cipher/ripemd160"
 )
 
 func TestNewPubKey(t *testing.T) {

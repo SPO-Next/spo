@@ -3,8 +3,8 @@ package visor
 import (
 	"fmt"
 
-	"github.com/spolabs/spo/src/coin"
-	"github.com/spolabs/spo/src/visor/historydb"
+	"github.com/spo-next/spo/src/coin"
+	"github.com/spo-next/spo/src/visor/historydb"
 )
 
 // ParserOption option type which will be used when creating parser instance
@@ -12,11 +12,11 @@ type ParserOption func(*BlockchainParser)
 
 // BlockchainParser parses the blockchain and stores the data into historydb.
 type BlockchainParser struct {
-	historyDB *historydb.HistoryDB
+	historyDB historyer
 	blkC      chan coin.Block
 	quit      chan struct{}
 	done      chan struct{}
-	bc        *Blockchain
+	bc        Blockchainer
 
 	isStart bool
 }

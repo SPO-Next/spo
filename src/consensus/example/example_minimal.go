@@ -9,9 +9,9 @@ import (
 	"fmt"
 	mathrand "math/rand"
 	//
-	"github.com/spolabs/spo/src/cipher"
-	"github.com/spolabs/spo/src/cipher/secp256k1-go"
-	"github.com/spolabs/spo/src/consensus"
+	"github.com/spo-next/spo/src/cipher"
+	"github.com/spo-next/spo/src/cipher/secp256k1-go"
+	"github.com/spo-next/spo/src/consensus"
 )
 
 var Cfg_simu_num_node int = 5
